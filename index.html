@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TinyMCE Editor with GPL License</title>
+    <!-- Include the TinyMCE library from the CDN -->
+    <script src="./tinymce.min.js" referrerpolicy="origin"></script>
+    <script>
+        const demoBaseConfig = {
+            selector: 'textarea#classic',
+            width: "100%",
+            height: 500,
+            license_key: 'gpl',
+            resize: false,
+            images_file_types: 'jpg,svg,webp,png,gif',
+            autosave_ask_before_unload: false,
+            powerpaste_allow_local_images: true,
+            plugins: [
+                'a11ychecker', 'advcode', 'advlist', 'anchor', 'autolink', 'codesample', 'fullscreen',
+                'help', 'image', 'imagetools', 'editimage', 'tinydrive', 'lists', 'link', 'media',
+                'powerpaste', 'preview', 'searchreplace', 'table', 'tinymcespellchecker', 'visualblocks',
+                'wordcount', 'code'
+            ],
+            toolbar: 'insertfile a11ycheck undo redo | bold italic | forecolor backcolor | codesample | ' +
+                     'alignleft aligncenter alignright alignjustify | bullist numlist | link image | ' +
+                     'code uploadimage',
+            image_title: true,
+            automatic_uploads: true,
+            file_picker_types: 'image',
+            file_picker_callback: function(cb, value, meta) {
+                const input = document.createElement('input');
+                input.setAttribute('type', 'file');
+                input.setAttribute('accept', 'image/*');
+
+                input.onchange = function() {
+                    const file = this.files[0];
+                    const reader = new FileReader();
+                    
+                    reader.onload = function () {
+                        const id = 'blobid' + (new Date()).getTime();
+                        const blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                        const base64 = reader.result.split(',')[1];
+                        const blobInfo = blobCache.create(id, file, base64);
+                        blobCache.add(blobInfo);
+
+                        cb(blobInfo.blobUri(), { title: file.name });
+                    };
+                    reader.readAsDataURL(file);
+                };
+                
+                input.click();
+            },
+            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }'
+        };
+
+        tinymce.init(demoBaseConfig);
+    </script>
+</head>
+<body>
+    <textarea id="classic" name="content">
+        This is the initial content of the editor.
+        <div class="gpl-license">
+            This editor is powered by TinyMCE. <br>
+            This software is licensed under the GPL.
+        </div>
+    </textarea>
+</body>
+</html>
